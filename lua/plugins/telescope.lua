@@ -21,11 +21,20 @@ return {
 			local builtin = require('telescope.builtin')
 			return {
 				{ '<leader>/', builtin.live_grep },
-				{ '<leader>:', '<cmd>Telescope command_history<cr>' },
+				{ '<leader>:', builtin.command_history },
+				{ '<leader>fs', builtin.lsp_document_symbols, },
+				{ '<leader>gt', builtin.lsp_type_definitions, },
+				{ '<leader>es', builtin.lsp_workspace_symbols, },
+				{ '<leader>fr', builtin.lsp_references, },
 				{ '<leader>ff', builtin.find_files, },
 				{ '<leader>fb', builtin.buffers, },
-				{ '<leader>fr', '<cmd>Telescope oldfiles<cr>', desc = 'Recent' },
-				{ '<leader>gs', '<cmd>Telescope git_status<cr>', },
+				{ '<leader>fk', builtin.keymaps, },
+				{ '<leader>fm', builtin.marks, },
+				{ '<leader>fo', builtin.oldfiles, desc = 'Recent' },
+				{ '<leader>gs', builtin.git_status, },
+				{ '<leader>fgf', builtin.git_bcommits, },
+				{ '<leader>fgb', builtin.git_branches, },
+				{ '<leader>fgc', builtin.git_commits, },
 				{ '<leader>sg', builtin.live_grep, desc = 'Grep' },
 			}
 		end,

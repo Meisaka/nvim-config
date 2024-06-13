@@ -1,5 +1,13 @@
 return {
-	{ "williamboman/mason.nvim" },
+	{
+		"williamboman/mason.nvim",
+		cmd = "Mason",
+		main = 'mason',
+		build = ':MasonUpdate',
+		config = function(_, opts)
+			require("mason").setup(opts)
+		end,
+	},
 	{ "williamboman/mason-lspconfig.nvim",
 		ensure_installed = { "clangd" },
 	},
@@ -15,7 +23,10 @@ return {
 			local cmp = require('cmp')
 			cmp.setup({
 				mapping = cmp.mapping.preset.insert({
-					['<C-l>'] = cmp.mapping.complete(),
+					['<C-l>'] = cmp.mapping.confirm(),
+					['<C-e>'] = cmp.mapping.abort(),
+					['<C-u>'] = cmp.mapping.scroll_docs(-7),
+					['<C-d>'] = cmp.mapping.scroll_docs(7),
 					['<Tab>'] = cmp.mapping.confirm({ select = true }),
 				}),
 				sources = opts.sources,
@@ -23,27 +34,37 @@ return {
 		end,
 	},
 	{ "neovim/nvim-lspconfig",
+		dependencies = {
+			"mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+		},
 		opts = function()
 			local cmp = require('cmp_nvim_lsp').default_capabilities()
 			diag = { enable = false }
 			return {
 				inlay_hints = { enabled = true },
 				servers = {
-					clangd = {},
+					clangd = {
+						settings = {},
+					},
 					['rust_analyzer'] = {
 						--settings = { inlayHints = { typeHints = { enable = true } } },
 						cmd = {
 							'C:\\Users\\Meisaka\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rust-analyzer.exe'
 						},
-					}
+					},
+					['tsserver'] = {},
 				},
 				setup = {
 					clangd = { capabilities = cmp },
 					['rust_analyzer'] = { capabilities = cmp },
+					['tsserver'] = { capabilities = cmp },
 				},
 			}
 		end,
 		config = function(_, opt)
+			require("mason").setup()
+			require("mason-lspconfig").setup()
 			vim.api.nvim_create_autocmd('LspAttach', {
 				group = vim.api.nvim_create_augroup('UserLspConfig', {}),
 				callback = function(ev)
@@ -73,9 +94,9 @@ return {
 						--vim.lsp.buf.format { async = true }
 						--end, opts)
 					vim.keymap.set('n', '<leader>uh', function()
-						vim.lsp.inlay_hint.enable(opts.buffer, true)
+						vim.lsp.inlay_hint.enable(opts.buffer, not vim.lsp.inlay_hint.is_enabled(opts.buffer))
 						end, opts)
-					vim.lsp.inlay_hint.enable(opts.buffer, not vim.lsp.inlay_hint.is_enabled(opts.buffer))
+					vim.lsp.inlay_hint.enable(opts.buffer, true)
 				end,
 			})
 			for k,v in pairs(opt.servers) do

@@ -14,9 +14,10 @@ vim.g.mapleader = " "
 
 require("lazy").setup({
 	spec = {
-	--	{ "nyoom-engineering/oxocarbon.nvim" },
+		{ "nyoom-engineering/oxocarbon.nvim" },
 		{ "savq/melange-nvim" },
 		{ import = "plugins" }
-	}
+	},
+	change_detection = { notify = false },
 })
 
