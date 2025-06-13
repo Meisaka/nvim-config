@@ -168,7 +168,7 @@ function M.indent(lnum)
 		end
 	end)
 	if not root then
-		w.sched_lines('=0(no root)')
+		--w.sched_lines('=0(no root)')
 		return 0
 	end
 	--local tdb = vim.inspect(where)..',root:'..node_info(root)

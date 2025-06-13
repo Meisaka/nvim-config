@@ -8,9 +8,6 @@ return {
 			require("mason").setup(opts)
 		end,
 	},
-	{ "williamboman/mason-lspconfig.nvim",
-		ensure_installed = { "clangd" },
-	},
 	{ 'hrsh7th/cmp-nvim-lsp' },
 	{ 'hrsh7th/cmp-buffer' },
 	{ 'hrsh7th/nvim-cmp',
@@ -33,10 +30,27 @@ return {
 			})
 		end,
 	},
+	{ "williamboman/mason-lspconfig.nvim",
+		dependencies = {
+			"neovim/nvim-lspconfig",
+			'hrsh7th/nvim-cmp',
+		},
+		opts = function()
+			local cmp = require('cmp_nvim_lsp').default_capabilities()
+			return {
+				handlers = {
+					function(server_name) -- default
+						require("lspconfig")[server_name].setup({ capabilities = cmp })
+					end,
+				}
+			}
+		end,
+		ensure_installed = { "clangd" },
+	},
 	{ "neovim/nvim-lspconfig",
 		dependencies = {
-			"mason.nvim",
-			"williamboman/mason-lspconfig.nvim",
+			'hrsh7th/nvim-cmp',
+			'nvim-telescope/telescope.nvim',
 		},
 		opts = function()
 			local cmp = require('cmp_nvim_lsp').default_capabilities()
@@ -46,38 +60,36 @@ return {
 				servers = {
 					clangd = {
 						settings = {},
+						capabilities = cmp,
 					},
 					['rust_analyzer'] = {
 						--settings = { inlayHints = { typeHints = { enable = true } } },
 						cmd = {
-							'C:\\Users\\Meisaka\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rust-analyzer.exe'
+							'rust-analyzer'
 						},
+						capabilities = cmp,
 					},
-					['tsserver'] = {},
-				},
-				setup = {
-					clangd = { capabilities = cmp },
-					['rust_analyzer'] = { capabilities = cmp },
-					['tsserver'] = { capabilities = cmp },
 				},
 			}
 		end,
 		config = function(_, opt)
-			require("mason").setup()
-			require("mason-lspconfig").setup()
+			local telescope = require('telescope.builtin')
 			vim.api.nvim_create_autocmd('LspAttach', {
 				group = vim.api.nvim_create_augroup('UserLspConfig', {}),
 				callback = function(ev)
 					-- Enable completion triggered by <c-x><c-o>
+					vim.print('LSP Attach '..vim.lsp.get_client_by_id(ev.data.client_id).name)
 					vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
 
 					-- Buffer local mappings.
 					-- See `:help vim.lsp.*` for documentation on any of the below functions
 					local opts = { buffer = ev.buf }
 					vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-					vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+					--vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+					vim.keymap.set('n', 'gd', telescope.lsp_definitions, { buffer = ev.buf, desc = 'Telescope/Lsp: Definitions'})
 					vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-					vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+					--vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+					vim.keymap.set('n', 'gi', telescope.lsp_implementations, { buffer = ev.buf, desc = 'Telescope/Lsp: Implementations'})
 					vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
 					vim.keymap.set('i', '<C-n>', '<C-x><C-o>', opts)
 					vim.keymap.set('i', '<C-f>', vim.lsp.buf.signature_help, opts)
@@ -94,9 +106,9 @@ return {
 						--vim.lsp.buf.format { async = true }
 						--end, opts)
 					vim.keymap.set('n', '<leader>uh', function()
-						vim.lsp.inlay_hint.enable(opts.buffer, not vim.lsp.inlay_hint.is_enabled(opts.buffer))
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = opts.buffer }), { bufnr = opts.buffer })
 						end, opts)
-					vim.lsp.inlay_hint.enable(opts.buffer, true)
+					vim.lsp.inlay_hint.enable(true, { bufnr = opts.buffer })
 				end,
 			})
 			for k,v in pairs(opt.servers) do
