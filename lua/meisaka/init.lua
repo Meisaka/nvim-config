@@ -42,11 +42,20 @@ vim.keymap.set('n', '<leader>ef', vim.cmd.Ex)
 vim.keymap.set('n', '<F5>', ':checktime<CR>')
 
 vim.opt.nu = true
-vim.opt.relativenumber = true
-vim.opt.statuscolumn="%s%=%{v:lnum}%{printf('%2x',v:relnum % 10)}%C┆"
+vim.api.nvim_set_option_value('number', true, {scope='global'})
+vim.api.nvim_set_option_value('relativenumber', true, {scope='global'})
+local statuscol = "%s%=%{v:lnum}%{printf('%2x',v:relnum % 10)}%C┆"
+vim.opt.statuscolumn=statuscol
+vim.opt.statusline='%q%w%h[%R%3n %-16f%a %1M]%=%#ErrorMsg#%y%0* %4O %4l/%L %-5(%c%-V%) %P %02B<%3b>'
 vim.opt.numberwidth=7
 vim.opt.tabstop = 4
 vim.opt.cc = "80,120"
+--vim.api.nvim_create_autocmd({"BufWinEnter"}, { callback = function(ev) end })
+vim.api.nvim_create_autocmd({"TermOpen"}, {
+	callback = function(ev)
+		vim.api.nvim_set_option_value('statuscolumn', '', {scope='local'})
+	end
+})
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.scrolloff = 5

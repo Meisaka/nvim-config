@@ -42,6 +42,7 @@ return {
 				{ '<leader>fo', builtin.oldfiles, desc = 'Recent' },
 				{ '<leader>fP', builtin.planets, desc = 'Planets' },
 				{ '<leader>gs', builtin.git_status, desc = 'Git Status' },
+				{ '<leader>gS', builtin.git_stash, desc = 'Git Stash' },
 				{ '<leader>fgf', builtin.git_bcommits, },
 				{ '<leader>fgb', builtin.git_branches, desc = 'Git Branches' },
 				{ '<leader>fgc', builtin.git_commits, desc = 'Git Commits' },
